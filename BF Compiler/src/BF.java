@@ -100,7 +100,6 @@ public class BF
 	public interface Visitor
 	{
 		void visit(Left left);
-		void visit(Sequence sequence);
 		void visit(Right right);
 		void visit(Increment increment);
 		void visit(Decrement derement);
@@ -114,31 +113,40 @@ public class BF
 	{
 		public void visit(Left left)
 		{
-			
+			System.out.println("pointer--;");
 		}
 		public void visit(Right right)
 		{
-			
+			System.out.println("pointer++;");
 		}
 		public void visit(Increment increment)
 		{
-			System.out.println("array[pointer]++");
+			System.out.println("array[pointer]++;");
 		}
 		public void visit(Decrement decrement)
 		{
-			System.out.println("array[pointer]--");
+			System.out.println("array[pointer]--;");
 		}
 		public void visit(Input input)
 		{
-			
+			//Looks like this is unnecessary
+			//There doesn't seem to be an input
+			//character in the brainf*** code
 		}
 		public void visit(Output output)
 		{
-			
+			System.out.println("System.out.println((char)array[pointer])");
 		}
 		public void visit(Loop loop)
 		{
+			System.out.println("while(array[pointer] != 0) [");
 			
+			/*
+			 * THERE NEEDS TO BE SOME LOOP HERE 
+			 * SO THAT EVERYTHING BEFORE THE LOOP 
+			 * EXITS IS INDENTED CORRECTLY
+			 */
+			System.out.println("]");
 		}
 		public void visit(Program program)
 		{
@@ -150,14 +158,15 @@ public class BF
 						"\t\tpointer = 0;");
 			for(int i=0; i<program.list.size(); i++)
 			{
-				program.list.get(i).accept(this);;
+				System.out.print("\t\t");
+				program.list.get(i).accept(this);
+				//It might be more useful to use pop() instead of get() in order to
+				//reduce the list and use it in loop without repeating code
 			}
 			
+			//Prints out the final 2 semicolons in their correct java-indented spots
+			System.out.println("\t}");
 			System.out.println("}");
-		}
-		public void visit(Sequence sequence) 
-		{
-			
 		}
 	}
 	
