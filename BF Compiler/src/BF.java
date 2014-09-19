@@ -15,11 +15,20 @@ public class BF
 	public static abstract class Sequence implements Node 
 	{
 		//Declare linked list of child nodes
-		LinkedList list = new LinkedList();
+		LinkedList<Node> list = new LinkedList<Node>();
 		//This allows to add child node to linked list
 		public void add(Node instruction)
 		{
 			list.add(instruction);
+		}
+		
+		public void accept (Visitor v)
+		{
+			/* I don't think this is right at all
+			for(Node n: list)
+				n.accept(v);
+			v.visit(this);
+			*/ 
 		}
 	}
 	
@@ -83,6 +92,75 @@ public class BF
 		}
 	}
 	
+	
+	
+	/*
+	 * VISITOR CLASS AND INTERFACE
+	 */
+	public interface Visitor
+	{
+		void visit(Left left);
+		void visit(Sequence sequence);
+		void visit(Right right);
+		void visit(Increment increment);
+		void visit(Decrement derement);
+		void visit(Input input);
+		void visit(Output output);
+		void visit(Loop loop);
+		void visit(Program program);
+	}
+	
+	public static class CompilerVisitorJava implements Visitor
+	{
+		public void visit(Left left)
+		{
+			
+		}
+		public void visit(Right right)
+		{
+			
+		}
+		public void visit(Increment increment)
+		{
+			System.out.println("array[pointer]++");
+		}
+		public void visit(Decrement decrement)
+		{
+			System.out.println("array[pointer]--");
+		}
+		public void visit(Input input)
+		{
+			
+		}
+		public void visit(Output output)
+		{
+			
+		}
+		public void visit(Loop loop)
+		{
+			
+		}
+		public void visit(Program program)
+		{
+			System.out.println(
+				"public class Output { \n" + 
+					"\tpublic static void main (String[] args) throws Exception {\n" +
+						"\t\tbyte[] array = new byte[30000];\n" +
+						"\t\tint pointer = 0;\n" +
+						"\t\tpointer = 0;");
+			for(int i=0; i<program.list.size(); i++)
+			{
+				program.list.get(i).accept(this);;
+			}
+			
+			System.out.println("}");
+		}
+		public void visit(Sequence sequence) 
+		{
+			
+		}
+	}
+	
 	/*
 	 * Given a StringBuffer, and a Sequence (Program or Loop),
 	 * fill up Sequence with appropriate nodes
@@ -113,6 +191,9 @@ public class BF
 				seq.add(new Loop());		//I don't think this is right.  I'm not sure how to handle these loop chars
 			else if (character == ']')		//Remember to come back and fix them cause they're probably wrong
 				seq.add(new Loop());
+			
+			if (buf.length() != 0)
+				character = buf.charAt(0);
 		}
 		return seq;
 	}
@@ -126,57 +207,6 @@ public class BF
 		//Just pass StringBuffer to method doParse
 		//Program() is just a container for the output of doParse
 		return (Program) doParse(new StringBuffer(str), new Program());
-	}
-	
-	/*
-	 * VISITOR CLASS AND INTERFACE
-	 */
-	public interface Visitor
-	{
-		void visit(Left left);
-		void visit(Right right);
-		void visit(Increment increment);
-		void visit(Decrement derement);
-		void visit(Input input);
-		void visit(Output output);
-		void visit(Loop loop);
-		void visit(Program program);
-	}
-	
-	public static class CompilerVisitorJava implements Visitor
-	{
-		public void visit(Left left)
-		{
-			
-		}
-		public void visit(Right right)
-		{
-			
-		}
-		public void visit(Increment increment)
-		{
-			
-		}
-		public void visit(Decrement derement)
-		{
-			
-		}
-		public void visit(Input input)
-		{
-			
-		}
-		public void visit(Output output)
-		{
-			
-		}
-		public void visit(Loop loop)
-		{
-			
-		}
-		public void visit(Program program)
-		{
-			
-		}
 	}
 	
 	public static void main(String args[])
