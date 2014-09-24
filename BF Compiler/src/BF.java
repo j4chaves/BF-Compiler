@@ -21,15 +21,6 @@ public class BF
 		{
 			list.add(instruction);
 		}
-		
-		public void accept (Visitor v)
-		{
-			/* I don't think this is right at all
-			for(Node n: list)
-				n.accept(v);
-			v.visit(this);
-			*/ 
-		}
 	}
 	
 	/*
@@ -96,6 +87,11 @@ public class BF
 	
 	/*
 	 * VISITOR CLASS AND INTERFACE
+	 * 
+	 * Most visit methods just output their java-equivalent instruction.
+	 * visit(Program program) is the main method of the Visitor class
+	 * and runs a loop for the input and visits the corresponding
+	 * method for each character that is given.
 	 */
 	public interface Visitor
 	{
@@ -131,37 +127,52 @@ public class BF
 		{
 			//Looks like this is unnecessary
 			//There doesn't seem to be an input
-			//character in the brainf*** code
+			//character in the gven brainf*** code
 		}
 		public void visit(Output output)
 		{
-			System.out.println("System.out.println((char)array[pointer])");
+			System.out.println("System.out.print((char)array[pointer]);");
 		}
 		public void visit(Loop loop)
 		{
-			System.out.println("while(array[pointer] != 0) [");
-			
-			/*
-			 * THERE NEEDS TO BE SOME LOOP HERE 
-			 * SO THAT EVERYTHING BEFORE THE LOOP 
-			 * EXITS IS INDENTED CORRECTLY
-			 */
-			System.out.println("]");
+			System.out.println("while(array[pointer] != 0) {");
 		}
 		public void visit(Program program)
 		{
+			//This is the beginning portion of a Java program that is compiling BF
 			System.out.println(
 				"public class Output { \n" + 
 					"\tpublic static void main (String[] args) throws Exception {\n" +
 						"\t\tbyte[] array = new byte[30000];\n" +
 						"\t\tint pointer = 0;\n" +
 						"\t\tpointer = 0;");
-			for(int i=0; i<program.list.size(); i++)
+			
+			//This loop goes through the linked list and creates a
+			//Node class for each character in the list and then
+			//accepts the CompilerVisitorJava to accept the visitor
+			while(program.list.size()!=0)
 			{
 				System.out.print("\t\t");
-				program.list.get(i).accept(this);
-				//It might be more useful to use pop() instead of get() in order to
-				//reduce the list and use it in loop without repeating code
+				Node n = program.list.pop();//.accept(this);
+				if(n.getClass() == (Loop.class))
+				{
+					n.accept(this);
+					/*
+					 * This loop is to indent everything 
+					 * that is within a loop in brainf***
+					 * so that the code is properly placed in Java
+					 */
+					Node f = program.list.pop();
+					while(f.getClass() != Loop.class)
+					{
+						System.out.print("\t\t\t");
+						f.accept(this);
+						f = program.list.pop();
+					}
+					System.out.println("\t\t}");
+				}
+				else
+					n.accept(this);
 			}
 			
 			//Prints out the final 2 semicolons in their correct java-indented spots
@@ -170,7 +181,9 @@ public class BF
 		}
 	}
 	
-	/*
+	
+	/* THESE ARE THE GIVEN FUNCTIONS FOR THIS PROJECT
+	 * 
 	 * Given a StringBuffer, and a Sequence (Program or Loop),
 	 * fill up Sequence with appropriate nodes
 	 */
@@ -183,6 +196,7 @@ public class BF
 		{
 			//consume one character from the start of the buffer
 			buf.deleteCharAt(0);
+			
 			//Add proper node classes to seq, based on consumed character
 			if (character == '>')
 				seq.add(new Right());
@@ -197,6 +211,7 @@ public class BF
 			else if (character == ',')
 				seq.add(new Input());
 			else if (character == '[')
+				//seq.add(doParse(buf, seq));
 				seq.add(new Loop());		//I don't think this is right.  I'm not sure how to handle these loop chars
 			else if (character == ']')		//Remember to come back and fix them cause they're probably wrong
 				seq.add(new Loop());
